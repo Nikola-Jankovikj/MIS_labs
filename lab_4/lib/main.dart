@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:lab_3/widgets/CalendarWidget.dart';
 import 'package:lab_3/widgets/NewMidterm.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -48,6 +49,10 @@ class _MainListScreenState extends State<MainListScreen> {
         title: const Text('Midterm List'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.calendar_month),
+            onPressed: _openCalendar,
+          ),
+          IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => FirebaseAuth.instance.currentUser != null
                 ? _addMidtermFunction(context)
@@ -90,6 +95,15 @@ class _MainListScreenState extends State<MainListScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _openCalendar() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CalendarWidget(midterms: midterms),
       ),
     );
   }
