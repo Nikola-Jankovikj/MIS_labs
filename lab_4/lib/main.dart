@@ -1,4 +1,4 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:lab_3/widgets/CalendarWidget.dart';
@@ -6,23 +6,32 @@ import 'package:lab_3/widgets/NewMidterm.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'model/Midterm.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'notification_controller.dart';
+import 'notification_manager.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // You may set the permission requests to "provisional" which allows the user to choose what type
-// of notifications they would like to receive once the user receives a notification.
-  final notificationSettings = await FirebaseMessaging.instance.requestPermission(provisional: true);
-
-// For apple platforms, ensure the APNS token is available before making any FCM plugin API calls
-  final apnsToken = await FirebaseMessaging.instance.getAPNSToken();
-  if (apnsToken != null) {
-    // APNS token is available, make FCM plugin API requests...
+  await AwesomeNotifications().initialize(
+    null, [
+      NotificationChannel(
+        channelGroupKey: "basic_channel_group",
+        channelKey: "basic_channel",
+        channelName: "basic_notif",
+        channelDescription: "basic notification channel",
+      )
+    ],
+    channelGroups: [
+      NotificationChannelGroup(channelGroupKey: "basic_channel_group", channelGroupName: "basic_group")
+    ]
+  );
+  bool isAllowedToSendNotification = await AwesomeNotifications().isNotificationAllowed();
+  if(!isAllowedToSendNotification){
+    AwesomeNotifications().requestPermissionToSendNotifications();
   }
-
-  final fcmToken = await FirebaseMessaging.instance.getToken();
-  print("STARTS " + fcmToken! + " ENDED");
   runApp(const MyApp());
 }
 
@@ -42,6 +51,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
 class MainListScreen extends StatefulWidget {
   const MainListScreen({super.key});
 
@@ -51,10 +61,29 @@ class MainListScreen extends StatefulWidget {
 
 class _MainListScreenState extends State<MainListScreen> {
   final List<Midterm> midterms = [
-    Midterm(subject: 'MIS', date: DateTime.now()),
+    Midterm(subject: 'MIS', date: DateTime(2023, 12, 30)),
     Midterm(subject: 'VNP', date: DateTime(2023, 12, 31)),
-    Midterm(subject: 'DB', date: DateTime(2023, 12, 22))
+    Midterm(subject: 'DB', date: DateTime(2023, 12, 24)),
+    Midterm(subject: "MIS", date: DateTime(2023, 12, 25))
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    AwesomeNotifications().setListeners(
+        onActionReceivedMethod: NotificationController.onActionReceiveMethod,
+        onDismissActionReceivedMethod: NotificationController.onDismissActionReceiveMethod,
+        onNotificationCreatedMethod: NotificationController.onNotificationCreateMethod,
+        onNotificationDisplayedMethod: NotificationController.onNotificationDisplayed
+    );
+    _scheduleNotificationsForExistingMidterms();
+  }
+
+  void _scheduleNotificationsForExistingMidterms() {
+    for (int i = 0; i < midterms.length; i++) {
+      _scheduleNotification(midterms[i]);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +180,23 @@ class _MainListScreenState extends State<MainListScreen> {
   void _addMidterm(Midterm midterm) {
     setState(() {
       midterms.add(midterm);
+      _scheduleNotification(midterm);
     });
+  }
+
+  void _scheduleNotification(Midterm midterm) {
+    final int notificationId = midterms.indexOf(midterm);
+
+   AwesomeNotifications().createNotification(
+     content: NotificationContent(id: notificationId, channelKey: "basic_channel", title: midterm.subject, body: "You have a midterm tomorrow!"),
+     schedule: NotificationCalendar(
+       day: midterm.date.subtract(const Duration(days: 1)).day,
+       month: midterm.date.subtract(const Duration(days: 1)).month,
+       year: midterm.date.subtract(const Duration(days: 1)).year,
+       hour: midterm.date.subtract(const Duration(days: 1)).hour,
+       minute: midterm.date.subtract(const Duration(days: 1)).minute
+     )
+   );
   }
 }
 
