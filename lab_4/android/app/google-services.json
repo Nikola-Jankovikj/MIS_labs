@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "108187238706",
+    "project_id": "mis-lab-3",
+    "storage_bucket": "mis-lab-3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:108187238706:android:153dadae2098dff69bd72b",
+        "android_client_info": {
+          "package_name": "mk.ukim.finki.lab_3"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3tJYVwILuGTdoZlUAnoQJ0ZX9LU2Yltk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
