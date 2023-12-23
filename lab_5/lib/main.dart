@@ -5,10 +5,12 @@ import 'package:lab_3/service/location_service.dart';
 import 'package:lab_3/service/notification_service.dart';
 import 'package:lab_3/widgets/CalendarWidget.dart';
 import 'package:lab_3/widgets/NewMidterm.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'model/Midterm.dart';
 import 'controller/notification_controller.dart';
+import 'model/permission_group.dart';
 
 
 void main() async {
@@ -32,6 +34,7 @@ void main() async {
   if(!isAllowedToSendNotification){
     AwesomeNotifications().requestPermissionToSendNotifications();
   }
+
   runApp(const MyApp());
 }
 
@@ -67,6 +70,8 @@ class _MainListScreenState extends State<MainListScreen> {
     Midterm(subject: "MIS", date: DateTime(2023, 12, 25))
   ];
 
+  bool _isLocationBasedNotificationsEnabled = false;
+
   @override
   void initState() {
     super.initState();
@@ -87,6 +92,11 @@ class _MainListScreenState extends State<MainListScreen> {
       appBar: AppBar(
         title: const Text('Midterm List'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.alarm_add),
+            color: _isLocationBasedNotificationsEnabled ? Colors.amberAccent : Colors.grey,
+            onPressed: _toggleLocationNotifications,
+          ),
           IconButton(
             icon: const Icon(Icons.calendar_month),
             onPressed: _openCalendar,
@@ -137,6 +147,32 @@ class _MainListScreenState extends State<MainListScreen> {
       ),
     );
   }
+
+  void _toggleLocationNotifications() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Location Based Notifications"),
+          content: _isLocationBasedNotificationsEnabled ? Text("You have turned off location-based notifications") : Text("You have turned on location-based notifications"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                NotificationService().toggleLocationNotification();
+                setState(() {
+                  _isLocationBasedNotificationsEnabled = !_isLocationBasedNotificationsEnabled;
+                });
+                Navigator.pop(context);
+              },
+              child: Text("OK"),
+            )
+          ],
+        );
+      },
+    );
+  }
+
 
   void _openCalendar() {
     Navigator.push(
