@@ -8,7 +8,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'model/Midterm.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'notification_controller.dart';
-import 'notification_manager.dart';
 
 
 void main() async {
@@ -151,16 +150,6 @@ class _MainListScreenState extends State<MainListScreen> {
     );
   }
 
-  Future<void> _signOut() async {
-    await FirebaseAuth.instance.signOut();
-  }
-
-  void _navigateToSignInPage(BuildContext context) {
-    Future.delayed(Duration.zero, () {
-      Navigator.pushReplacementNamed(context, '/login');
-    });
-  }
-
   Future<void> _addMidtermFunction(BuildContext context) async {
     TextEditingController subjectController = TextEditingController();
     TextEditingController dateController = TextEditingController();
@@ -181,6 +170,16 @@ class _MainListScreenState extends State<MainListScreen> {
     setState(() {
       midterms.add(midterm);
       _scheduleNotification(midterm);
+    });
+  }
+
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
+  }
+
+  void _navigateToSignInPage(BuildContext context) {
+    Future.delayed(Duration.zero, () {
+      Navigator.pushReplacementNamed(context, '/login');
     });
   }
 
