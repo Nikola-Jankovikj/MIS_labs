@@ -1,13 +1,14 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:lab_3/service/location_service.dart';
+import 'package:lab_3/service/notification_service.dart';
 import 'package:lab_3/widgets/CalendarWidget.dart';
 import 'package:lab_3/widgets/NewMidterm.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'model/Midterm.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'notification_controller.dart';
+import 'controller/notification_controller.dart';
 
 
 void main() async {
@@ -75,14 +76,10 @@ class _MainListScreenState extends State<MainListScreen> {
         onNotificationCreatedMethod: NotificationController.onNotificationCreateMethod,
         onNotificationDisplayedMethod: NotificationController.onNotificationDisplayed
     );
-    _scheduleNotificationsForExistingMidterms();
+    NotificationService().scheduleNotificationsForExistingMidterms(midterms);
   }
 
-  void _scheduleNotificationsForExistingMidterms() {
-    for (int i = 0; i < midterms.length; i++) {
-      _scheduleNotification(midterms[i]);
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +166,7 @@ class _MainListScreenState extends State<MainListScreen> {
   void _addMidterm(Midterm midterm) {
     setState(() {
       midterms.add(midterm);
-      _scheduleNotification(midterm);
+      NotificationService().scheduleNotification(midterm);
     });
   }
 
@@ -181,21 +178,6 @@ class _MainListScreenState extends State<MainListScreen> {
     Future.delayed(Duration.zero, () {
       Navigator.pushReplacementNamed(context, '/login');
     });
-  }
-
-  void _scheduleNotification(Midterm midterm) {
-    final int notificationId = midterms.indexOf(midterm);
-
-   AwesomeNotifications().createNotification(
-     content: NotificationContent(id: notificationId, channelKey: "basic_channel", title: midterm.subject, body: "You have a midterm tomorrow!"),
-     schedule: NotificationCalendar(
-       day: midterm.date.subtract(const Duration(days: 1)).day,
-       month: midterm.date.subtract(const Duration(days: 1)).month,
-       year: midterm.date.subtract(const Duration(days: 1)).year,
-       hour: midterm.date.subtract(const Duration(days: 1)).hour,
-       minute: midterm.date.subtract(const Duration(days: 1)).minute
-     )
-   );
   }
 }
 
