@@ -5,6 +5,7 @@ import 'package:lab_3/service/location_service.dart';
 import 'package:lab_3/service/notification_service.dart';
 import 'package:lab_3/widgets/CalendarWidget.dart';
 import 'package:lab_3/widgets/NewMidterm.dart';
+import 'package:lab_3/widgets/map_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -98,6 +99,10 @@ class _MainListScreenState extends State<MainListScreen> {
             onPressed: _toggleLocationNotifications,
           ),
           IconButton(
+              onPressed: _openMap,
+              icon: const Icon(Icons.map)
+          ),
+          IconButton(
             icon: const Icon(Icons.calendar_month),
             onPressed: _openCalendar,
           ),
@@ -155,7 +160,7 @@ class _MainListScreenState extends State<MainListScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Location Based Notifications"),
-          content: _isLocationBasedNotificationsEnabled ? Text("You have turned off location-based notifications") : Text("You have turned on location-based notifications"),
+          content: _isLocationBasedNotificationsEnabled ? const Text("You have turned off location-based notifications") : const Text("You have turned on location-based notifications"),
           actions: [
             TextButton(
               onPressed: () {
@@ -165,7 +170,7 @@ class _MainListScreenState extends State<MainListScreen> {
                 });
                 Navigator.pop(context);
               },
-              child: Text("OK"),
+              child: const Text("OK"),
             )
           ],
         );
@@ -180,6 +185,14 @@ class _MainListScreenState extends State<MainListScreen> {
       MaterialPageRoute(
         builder: (context) => CalendarWidget(midterms: midterms),
       ),
+    );
+  }
+
+  void _openMap(){
+    Navigator.push(context,
+      MaterialPageRoute(
+          builder: (context) => const MapWidget()
+      )
     );
   }
 

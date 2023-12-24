@@ -3,13 +3,13 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:lab_3/service/location_service.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../model/Location.dart';
 import '../model/Midterm.dart';
 
 class NotificationService {
   int idCount = 0;
   bool locationNotifActive = false;
-  double finkiLat = 42.004186212873655;
-  double finkiLon = 21.409531941596985;
+  Location finki = Location("FINKI", 42.004186212873655, 21.409531941596985);
   DateTime? lastNotificationTime;
 
   NotificationService() {
@@ -60,8 +60,8 @@ class NotificationService {
     if (await Permission.locationWhenInUse.serviceStatus.isEnabled) {
       bool theSameLocation = false;
       LocationService().getCurrentLocation().then((value) {
-        if ((value.latitude < finkiLat + 0.01 && value.latitude > finkiLat - 0.01) &&
-            (value.longitude < finkiLon + 0.01 && value.longitude > finkiLon - 0.01)) {
+        if ((value.latitude < finki.latitude + 0.01 && value.latitude > finki.latitude - 0.01) &&
+            (value.longitude < finki.longitude + 0.01 && value.longitude > finki.longitude - 0.01)) {
           theSameLocation = true;
         }
         if (theSameLocation && canSendNotification()) {
